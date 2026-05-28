@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transposition Cipher - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .main-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background-color: white;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+        .main-header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 25px;
+        }
+        .cipher-section {
+            padding: 25px;
+            border-radius: 15px;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .section-encrypt {
+            background-color: #f4fbf7;
+            border: 1px solid #a3e635;
+        }
+        .section-decrypt {
+            background-color: #fcfdf2;
+            border: 1px solid #fde047;
+        }
+        .section-title {
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            padding: 12px;
+        }
+        .form-control:focus {
+            border-color: #11998e;
+            box-shadow: 0 0 0 0.2rem rgba(17, 153, 142, 0.1);
+        }
+        .btn-action {
+            border-radius: 10px;
+            font-weight: 700;
+            padding: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .result-box {
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 90px;
+            word-break: break-all;
+            border: 1px dashed #adb5bd;
+        }
+        .res-encrypt {
+            background-color: #e6f7f0;
+            color: #065f46;
+        }
+        .res-decrypt {
+            background-color: #fefce8;
+            color: #854d0e;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fas fa-chevron-left mr-3 text-success"></i>
+                <span class="font-weight-bold text-dark text-uppercase">Hệ thống Lab HUTECH</span>
+            </a>
+            <span class="badge badge-pill badge-success px-3 py-2">Transposition Algorithm</span>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-lg-5">
+        <div class="card main-card">
+            
+            <div class="main-header text-center">
+                <h2 class="font-weight-bold mb-1">TRANSPOSITION CIPHER TOOL</h2>
+                <p class="mb-0 opacity-75">Thuật toán mã hóa hoán vị cột (Columnar Transposition) theo khóa số</p>
+            </div>
+
+            <div class="card-body p-4">
+                <div class="row">
+                    
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="cipher-section section-encrypt shadow-sm">
+                            <h5 class="section-title text-success"><i class="fas fa-lock mr-2"></i>Mã hóa văn bản</h5>
+                            
+                            <form id="encryptForm" method="POST" action="/transposition/encrypt">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Bản rõ (Plaintext):</label>
+                                    <textarea class="form-control" name="inputPlaintext" rows="4" placeholder="Nhập chuỗi văn bản cần xáo trộn vị trí..." required autofocus></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Khóa hoán vị (Key - Number of Columns):</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-success text-white"><i class="fas fa-columns"></i></span>
+                                        </div>
+                                        <input type="number" class="form-control" name="inputKeyPlain" placeholder="Nhập số cột hoán vị (ví dụ: 4)" min="1" required>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success btn-block btn-action text-white"><i class="fas fa-shield-alt mr-2"></i> Thực hiện mã hóa</button>
+                            </form>
+                            
+                            <div id="encryptResult" class="result-box res-encrypt d-none"></div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="cipher-section section-decrypt shadow-sm">
+                            <h5 class="section-title text-warning" style="color: #a16207 !important;"><i class="fas fa-unlock-alt mr-2"></i>Giải mã văn bản</h5>
+                            
+                            <form id="decryptForm" method="POST" action="/transposition/decrypt">
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Bản mã hoán vị (Ciphertext):</label>
+                                    <textarea class="form-control" id="cipherTextArea" name="inputCipherText" rows="4" placeholder="Nhập chuỗi bản mã cần sắp xếp lại..." required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="font-weight-bold">Khóa hoán vị (Key - Number of Columns):</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text bg-warning text-dark"><i class="fas fa-key"></i></span>
+                                        </div>
+                                        <input type="number" class="form-control" id="cipherKeyInput" name="inputKeyCipher" placeholder="Nhập đúng số cột ban đầu..." min="1" required>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-warning btn-block btn-action text-dark"><i class="fas fa-key mr-2"></i> Thực hiện giải mã</button>
+                            </form>
+                            
+                            <div id="decryptResult" class="result-box res-decrypt d-none"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // 1. Xử lý AJAX cho Form Mã Hóa (Encrypt)
+        document.getElementById('encryptForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            let formData = new FormData(this);
+            let transKey = this.querySelector('input[name="inputKeyPlain"]').value;
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultBox = document.getElementById('encryptResult');
+                resultBox.classList.remove('d-none');
+                
+                resultBox.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="font-weight-bold"><i class="fas fa-check-circle"></i> Bản mã thu được:</span>
+                        <button type="button" class="btn btn-sm btn-outline-success py-0" onclick="pushToDecrypt('${data.result}', ${transKey})">
+                            <i class="fas fa-arrow-right"></i> Chuyển sang Giải mã
+                        </button>
+                    </div>
+                    <div class="text-monospace p-2 bg-white rounded border font-weight-bold" style="font-size: 1.1rem; min-height: 40px;">${data.result}</div>
+                `;
+            })
+            .catch(error => console.error('Lỗi mã hóa:', error));
+        });
+
+        // 2. Xử lý AJAX cho Form Giải Mã (Decrypt)
+        document.getElementById('decryptForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            let formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                let resultBox = document.getElementById('decryptResult');
+                resultBox.classList.remove('d-none');
+                resultBox.innerHTML = `
+                    <div class="mb-2 font-weight-bold"><i class="fas fa-history"></i> Bản rõ khôi phục gốc:</div>
+                    <div class="text-monospace p-2 bg-white rounded border font-weight-bold" style="font-size: 1.1rem; min-height: 40px;">${data.result}</div>
+                `;
+            })
+            .catch(error => console.error('Lỗi giải mã:', error));
+        });
+
+        // Hàm hỗ trợ: Nạp tự động chuỗi mã hóa và khóa sang cột bên cạnh
+        function pushToDecrypt(text, key) {
+            document.getElementById('cipherTextArea').value = text;
+            document.getElementById('cipherKeyInput').value = key;
+            
+            // Hiệu ứng nháy màu nền nhẹ ở vùng giải mã để báo hiệu đã nạp dữ liệu xong
+            let target = document.querySelector('.section-decrypt');
+            target.style.backgroundColor = '#fef08a'; // Chuyển sang màu vàng nhạt khi nhận dữ liệu
+            setTimeout(() => {
+                target.style.backgroundColor = '#fcfdf2';
+            }, 400);
+        }
+    </script>
+</body>
+</html>
